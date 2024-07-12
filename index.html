@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADOP</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>ADOP Word Analyzer</h1>
+        <textarea id="storyInput" placeholder="Enter your story here..."></textarea>
+        <button id="analyzeButton">Word it</button>
+        <div id="results">
+            <h2>Results</h2>
+            <div id="wordFrequencies"></div>
+            <div id="commonPatterns"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+
+<script>
+
+function tokenize(text) {
+    text = text.replace(/[^\w\s]/g, '').toLowerCase();
+    return text.split(/\s+/);
+}
+
+function countWordFrequencies(words) {
+    const frequencies = {};
+    words.forEach(word => {
+        if (frequencies[word]) {
+            frequencies[word]++;
+        } else {
+            frequencies[word] = 1;
+        }
+    });
+    return frequencies;
+}
+
+function findCommonPatterns(words, minLength = 2, maxLength = 5) {
+    const patterns = {};
+
+    for (let i = 0; i < words.length; i++) {
+        for (let length = minLength; length <= maxLength; length++) {
+            if (i + length <= words.length) {
+                const pattern = words.slice(i, i + length).join(' ');
+                if (patterns[pattern]) {
+                    patterns[pattern]++;
+                } else {
+                    patterns[pattern] = 1;
+                }
+            }
+        }
+    }
+
+    return patterns;
+}
+
+document.getElementById('analyzeButton').addEventListener('click', () => {
+    const story = document.getElementById('storyInput').value;
+    const words = tokenize(story);
+    const wordFrequencies = countWordFrequencies(words);
+    const commonPatterns = findCommonPatterns(words);
+
+    const wordFrequenciesDiv = document.getElementById('wordFrequencies');
+    wordFrequenciesDiv.innerHTML = '<h3>Word Frequencies</h3>';
+    for (const [word, count] of Object.entries(wordFrequencies)) {
+        wordFrequenciesDiv.innerHTML += `<div class="result-item">${word}: ${count}</div>`;
+    }
+
+    const commonPatternsDiv = document.getElementById('commonPatterns');
+    commonPatternsDiv.innerHTML = '<h3>Common Patterns</h3>';
+    for (const [pattern, count] of Object.entries(commonPatterns)) {
+        if (count > 1) {
+            commonPatternsDiv.innerHTML += `<div class="result-item">${pattern}: ${count}</div>`;
+        }
+    }
+});
+
+</script>
